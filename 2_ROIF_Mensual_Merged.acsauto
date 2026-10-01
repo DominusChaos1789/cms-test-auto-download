@@ -1,0 +1,551 @@
+'LANGUAGE=ESO
+'SERVERNAME=<CMS_SERVER_IP>
+Public Sub Main()
+
+On Error Resume Next
+
+'FECHA AUTOMATICA (por defecto: ayer). Cambie DiasAtras si necesita otro dia.
+DiasAtras = 1
+d = DateAdd("d", -DiasAtras, Date)
+Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
+Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
+
+'SKILLS - script 1 original (4 lotes -> CARGUE 1,2,9,10)
+R1SK1="<SKILL_IDS_ROIF_S1_1>"
+R1SK2="<SKILL_IDS_ROIF_S1_2>"
+R1SK3="<SKILL_IDS_ROIF_S1_3>"
+R1SK4="<SKILL_IDS_ROIF_S1_4>"
+
+'SKILL - script 2 original (-> CARGUE 3)
+R2SK="<SKILL_IDS_ROIF_S2>"
+
+'SKILL - script 3 original (-> CARGUE 4)
+R3SK="<SKILL_IDS_ROIF_S3>"
+
+'SKILLS - script 4 original (4 lotes -> CARGUE 5,6,7,8)
+R4SK1="<SKILL_IDS_ROIF_S4_1>"
+R4SK2="<SKILL_IDS_ROIF_S4_2>"
+R4SK3="<SKILL_IDS_ROIF_S4_3>"
+R4SK4="<SKILL_IDS_ROIF_S4_4>"
+
+'SKILL - script 5 original (-> CARGUE 11)
+R5SK="<SKILL_IDS_ROIF_S5>"
+
+'===================== Roif noNEXA 1 (CARGUE 1, 2, 9, 10) =====================
+
+'CARGUE 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R1SK1
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R1SK2
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 9
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R1SK3
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 10
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R1SK4
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'===================== Roif noNEXA 2 (CARGUE 3) =====================
+
+'CARGUE 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R2SK
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'===================== Roif noNEXA 3 (CARGUE 4) =====================
+
+'CARGUE 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R3SK
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'===================== Roif noNEXA 4 (CARGUE 5, 6, 7, 8) =====================
+
+'CARGUE 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R4SK1
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 6
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R4SK2
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 7
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R4SK3
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE 8
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R4SK4
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'===================== Roif noNEXA 5 (CARGUE 11) =====================
+
+'CARGUE 11
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",R5SK
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\CARGUE 11_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\CARGUE 11_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT ROIF MENSUAL (1-11) FINALIZADO - fecha " & Fec
+Set Log = Nothing
+
+End Sub

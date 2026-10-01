@@ -14,10 +14,7 @@ set "CARPETA=C:\CMS_Scripts"
 set "LOG=%~dp0run_log.txt"
 set "ESPERA=60"
 
-rem Orden de ejecucion. Agregue "2_ROIF_Mensual_Merged.acsauto" aqui
-rem una vez generado (pendiente: aun falta informacion de los
-rem scripts Roif noNEXA 2-5 para construirlo).
-set "SCRIPTS=1_Intervalos_Merged.acsauto 3_Adherencia_Merged.acsauto"
+set "SCRIPTS=1_Intervalos_Merged.acsauto 2_ROIF_Mensual_Merged.acsauto 3_Adherencia_Merged.acsauto"
 
 echo ============================================== >> "%LOG%"
 echo %date% %time% - INICIO EJECUCION >> "%LOG%"

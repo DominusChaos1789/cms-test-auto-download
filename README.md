@@ -15,10 +15,16 @@ The original setup had 12 separate scripts (5 for intervalos, 5 for ROIF mensual
 | File | Status | Covers |
 |---|---|---|
 | `1_Intervalos_Merged.acsauto` | ✅ Ready | 5 original "Intervalos" scripts (Conexión + Intervalos + DEO report blocks each) |
+| `2_ROIF_Mensual_Merged.acsauto` | ✅ Ready | 5 original "Roif noNEXA" scripts, 11 `CARGUE` blocks total |
 | `3_Adherencia_Merged.acsauto` | ✅ Ready | `[Call Center Telmex Hogar] Base_Tbl_Ag-N` (10 agent-range blocks) + `EYN Base_Tbl_Ag-N` (10 agent-range blocks) |
-| `2_ROIF_Mensual_Merged.acsauto` | ⏳ Pending | Will merge the 5 original "Roif noNEXA" scripts once their full export/report sections are available |
 
 All three use the same `SERVERNAME` and are redacted in this repo — see below.
+
+### Notes on each merged script
+
+- **Intervalos** — the "Conexión" report (`ConexiondesconexionDeocms`) block for each of the 5 groups now pulls the **last 3 days** (yesterday, 2 days ago, 3 days ago) in a single report session, exporting one `LOGIN_n_<date>.txt` per day. The "Intervalos" and "DEO" blocks stay single-day (yesterday only), unchanged.
+- **ROIF Mensual** — the 11 `CARGUE` output files are produced across the 5 original scripts like this: script 1 → CARGUE 1, 2, 9, 10; script 2 → CARGUE 3; script 3 → CARGUE 4; script 4 → CARGUE 5, 6, 7, 8; script 5 → CARGUE 11. Report used: `Historical\Designer\Validacion Skill Por Agente` (no "P-1" suffix, unlike Intervalos' DEO report). One assumption carried over from the original scripts: within script 1 and script 4 (each originally split into 4 skill batches), the batch-to-CARGUE order is assumed sequential (1st batch → lowest CARGUE number, ...). Only CARGUE 1/2 were directly confirmed against the original screenshots — double check CARGUE 9/10 (script 1) and 5/6/7/8 (script 4) produce the right agents the first time you run it. Also, the original scripts had a redundant `z = cvsSrv.Reports.CreateReport(Info,Rep)` line right after the real `b = ...CreateReport(...)` call in every ROIF block — that looked like an accidental duplicate (it would open a second, never-closed report task per block), so it was dropped here rather than carried forward, since leaked report tasks are part of what causes the CMS server overload this project is trying to avoid.
+- **Adherencia** — unchanged from the original scripts aside from automatic dates and no `MsgBox`.
 
 ## Before using this
 
@@ -29,7 +35,7 @@ All `.acsauto` files in this repo are **redacted** — placeholders like `<CMS_S
 | `<CMS_SERVER_IP>` | Your CMS server's address (IP, hostname, or FQDN) |
 | `<FILE_SERVER_IP>` / `<FILE_SERVER_IP_2>` / `<FILE_SERVER_IP_2B>` | The file server(s)/share(s) where exports are written |
 | `<CLIENT>` | Your destination folder name under the share |
-| `<SKILL_IDS_INTERVALOS_n>` | Your real skill/split IDs for that batch, `;`-separated |
+| `<SKILL_IDS_INTERVALOS_n>` / `<SKILL_IDS_ROIF_S1_n>` / `<SKILL_IDS_ROIF_S2>` / etc. | Your real skill/split IDs for that batch, `;`-separated |
 
 Keep your filled-in copy **local** — don't commit real server IPs, internal share paths, or skill IDs to a public repo.
 
@@ -57,7 +63,8 @@ Keep your filled-in copy **local** — don't commit real server IPs, internal sh
 
 ## Files
 
-- `1_Intervalos_Merged.acsauto` — merged automatic script covering 5 report groups (Conexión/Intervalos/DEO each), redacted.
+- `1_Intervalos_Merged.acsauto` — merged automatic script covering 5 report groups (Conexión/Intervalos/DEO each; Conexión pulls the last 3 days), redacted.
+- `2_ROIF_Mensual_Merged.acsauto` — merged automatic script covering all 11 ROIF `CARGUE` blocks across the 5 original scripts, redacted.
 - `3_Adherencia_Merged.acsauto` — merged automatic script covering Telmex Hogar + EYN adherencia reports (10 agent-range blocks each), redacted.
-- `run_cms_scripts.bat` — launcher that runs the merged scripts in sequence, with process cleanup between each.
+- `run_cms_scripts.bat` — launcher that runs the 3 merged scripts in sequence, with process cleanup between each.
 - `SIC General 1_Admininfo.acsauto` — original single-report example, superseded by `1_Intervalos_Merged.acsauto`; kept for reference.

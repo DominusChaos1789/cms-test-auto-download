@@ -4,11 +4,22 @@ Public Sub Main()
 
 On Error Resume Next
 
-'FECHA AUTOMATICA (por defecto: ayer). Cambie DiasAtras si necesita otro dia.
-DiasAtras = 1
-d = DateAdd("d", -DiasAtras, Date)
-Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
-Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
+'FECHA AUTOMATICA. "Fec"/"Fec2" = ayer (usado por Intervalos y DEO).
+'La Conexion trae ademas los 2 dias anteriores (-2, -3) en la misma sesion de reporte.
+d1 = DateAdd("d", -1, Date)
+FecD1 = Right("0" & Day(d1), 2) & "/" & Right("0" & Month(d1), 2) & "/" & Year(d1)
+Fec2D1 = Year(d1) & Right("0" & Month(d1), 2) & Right("0" & Day(d1), 2)
+
+d2 = DateAdd("d", -2, Date)
+FecD2 = Right("0" & Day(d2), 2) & "/" & Right("0" & Month(d2), 2) & "/" & Year(d2)
+Fec2D2 = Year(d2) & Right("0" & Month(d2), 2) & Right("0" & Day(d2), 2)
+
+d3 = DateAdd("d", -3, Date)
+FecD3 = Right("0" & Day(d3), 2) & "/" & Right("0" & Month(d3), 2) & "/" & Year(d3)
+Fec2D3 = Year(d3) & Right("0" & Month(d3), 2) & Right("0" & Day(d3), 2)
+
+Fec = FecD1
+Fec2 = Fec2D1
 
 'SKILLS POR GRUPO (uno por cada script de intervalos original)
 SK1="<SKILL_IDS_INTERVALOS_1>"
@@ -18,7 +29,7 @@ SK4="<SKILL_IDS_INTERVALOS_4>"
 SK5="<SKILL_IDS_INTERVALOS_5>"
 
 
-'CONEXION 1
+'CONEXION 1 (trae ayer, antier y trasantier: -1/-2/-3 dias)
 
     cvsSrv.Reports.ACD = 1
     Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
@@ -46,9 +57,17 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
 
             Rep.SetProperty "Skill",SK1
 
-            Rep.SetProperty "Fechas",FEC
+            Rep.SetProperty "Fechas",FecD1
 
-            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_1_"&FEC2&".txt", 9, 0, true, True, True)
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_1_"&Fec2D1&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD2
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_1_"&Fec2D2&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD3
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_1_"&Fec2D3&".txt", 9, 0, true, True, True)
 
             rep.quit
 
@@ -148,7 +167,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
     Set Info = Nothing
 
 
-'CONEXION 2
+'CONEXION 2 (trae ayer, antier y trasantier: -1/-2/-3 dias)
 
     cvsSrv.Reports.ACD = 1
     Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
@@ -176,9 +195,17 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
 
             Rep.SetProperty "Skill",SK2
 
-            Rep.SetProperty "Fechas",FEC
+            Rep.SetProperty "Fechas",FecD1
 
-            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_2_"&FEC2&".txt", 9, 0, true, True, True)
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_2_"&Fec2D1&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD2
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_2_"&Fec2D2&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD3
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_2_"&Fec2D3&".txt", 9, 0, true, True, True)
 
             rep.quit
 
@@ -280,7 +307,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
     Set Info = Nothing
 
 
-'CONEXION 3
+'CONEXION 3 (trae ayer, antier y trasantier: -1/-2/-3 dias)
 
     cvsSrv.Reports.ACD = 1
     Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
@@ -308,9 +335,17 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
 
             Rep.SetProperty "Skill",SK3
 
-            Rep.SetProperty "Fechas",FEC
+            Rep.SetProperty "Fechas",FecD1
 
-            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_3_"&FEC2&".txt", 9, 0, true, True, True)
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_3_"&Fec2D1&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD2
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_3_"&Fec2D2&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD3
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_3_"&Fec2D3&".txt", 9, 0, true, True, True)
 
             rep.quit
 
@@ -410,7 +445,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
     Set Info = Nothing
 
 
-'CONEXION 4
+'CONEXION 4 (trae ayer, antier y trasantier: -1/-2/-3 dias)
 
     cvsSrv.Reports.ACD = 1
     Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
@@ -438,9 +473,17 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
 
             Rep.SetProperty "Skill",SK4
 
-            Rep.SetProperty "Fechas",FEC
+            Rep.SetProperty "Fechas",FecD1
 
-            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_4_"&FEC2&".txt", 9, 0, true, True, True)
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_4_"&Fec2D1&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD2
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_4_"&Fec2D2&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD3
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_4_"&Fec2D3&".txt", 9, 0, true, True, True)
 
             rep.quit
 
@@ -540,7 +583,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
     Set Info = Nothing
 
 
-'CONEXION 5
+'CONEXION 5 (trae ayer, antier y trasantier: -1/-2/-3 dias)
 
     cvsSrv.Reports.ACD = 1
     Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
@@ -568,9 +611,17 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
 
             Rep.SetProperty "Skill",SK5
 
-            Rep.SetProperty "Fechas",FEC
+            Rep.SetProperty "Fechas",FecD1
 
-            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_5_"&FEC2&".txt", 9, 0, true, True, True)
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_5_"&Fec2D1&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD2
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_5_"&Fec2D2&".txt", 9, 0, true, True, True)
+
+            Rep.SetProperty "Fechas",FecD3
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_5_"&Fec2D3&".txt", 9, 0, true, True, True)
 
             rep.quit
 
