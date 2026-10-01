@@ -1,0 +1,953 @@
+'LANGUAGE=ESO
+'SERVERNAME=<CMS_SERVER_IP>
+Public Sub Main()
+
+On Error Resume Next
+
+'FECHA AUTOMATICA (por defecto: ayer). Cambie DiasAtras si necesita otro dia.
+DiasAtras = 1
+d = DateAdd("d", -DiasAtras, Date)
+Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
+Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
+
+'RANGOS DE AGENTE (compartidos por las 2 empresas: Telmex Hogar y EYN)
+AG1="306000-307000"
+AG2="307000-308000"
+AG3="370000-371000"
+AG4="372000-373000"
+AG5="377000-378000"
+AG6="373000-374000"
+AG7="309000-310000"
+AG8="303000-304000"
+AG9="389000-390000"
+AG10="390001-391000"
+
+'===================== ADHERENCIA - [Call Center Telmex Hogar] =====================
+
+'CARGUE ADH TELMEX HOGAR 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG1
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG2
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG3
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG4
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG5
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 6
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG6
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 7
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG7
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 8
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG8
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 9
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG9
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH TELMEX HOGAR 10
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG10
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA <CLIENT> SAC\ADHERENCIA 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIA 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'===================== ADHERENCIA - EYN =====================
+
+'CARGUE ADH EYN 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG1
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG2
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG3
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG4
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG5
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 6
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG6
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 6_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 7
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG7
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 7_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 8
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG8
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 8_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 9
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG9
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 9_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CARGUE ADH EYN 10
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Base_Tbl_Ag-N")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Base_Tbl_Ag-N no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Agentes",AG10
+
+            Rep.SetProperty "Fecha",FEC
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA <CLIENT> EMPRESAS\ADHERENCIAEMP 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            b = Rep.ExportData("<FILE_SERVER_IP_2B>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\ADHERENCIAEMP 10_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT ADHERENCIA (Telmex Hogar + EYN) FINALIZADO - fecha " & Fec
+Set Log = Nothing
+
+End Sub
