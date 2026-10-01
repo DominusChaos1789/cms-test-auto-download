@@ -1,0 +1,678 @@
+'LANGUAGE=ESO
+'SERVERNAME=<CMS_SERVER_IP>
+Public Sub Main()
+
+On Error Resume Next
+
+'FECHA AUTOMATICA (por defecto: ayer). Cambie DiasAtras si necesita otro dia.
+DiasAtras = 1
+d = DateAdd("d", -DiasAtras, Date)
+Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
+Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
+
+'SKILLS POR GRUPO (uno por cada script de intervalos original)
+SK1="<SKILL_IDS_INTERVALOS_1>"
+SK2="<SKILL_IDS_INTERVALOS_2>"
+SK3="<SKILL_IDS_INTERVALOS_3>"
+SK4="<SKILL_IDS_INTERVALOS_4>"
+SK5="<SKILL_IDS_INTERVALOS_5>"
+
+
+'CONEXION 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK1
+
+            Rep.SetProperty "Fechas",FEC
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_1_"&FEC2&".txt", 9, 0, true, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'INTERVALOS 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Reporte Split/Skill x Intervalos")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK1
+
+            Rep.SetProperty "FECHAS",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\inervalo1_"&FEC2&".zervi", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'SCRIPT DEO 1
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente P-1")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK1
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\Deo 1_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CONEXION 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK2
+
+            Rep.SetProperty "Fechas",FEC
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_2_"&FEC2&".txt", 9, 0, true, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'INTERVALOS 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Reporte Split/Skill x Intervalos")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK2
+
+            Rep.SetProperty "FECHAS",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\inervalo2_"&FEC2&".zervi", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'SCRIPT DEO 2
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente P-1")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK2
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\Deo 2_"&FEC2&".txt", 9, 0, True, True, True)
+
+            z = Rep.ExportData("<FILE_SERVER_IP_2>\WorkForce\Torres\SAC\LOGIN\OCUPACION-INFNEWMOV.csv", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CONEXION 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK3
+
+            Rep.SetProperty "Fechas",FEC
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_3_"&FEC2&".txt", 9, 0, true, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'INTERVALOS 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Reporte Split/Skill x Intervalos")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK3
+
+            Rep.SetProperty "FECHAS",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\inervalo3_"&FEC2&".zervi", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'SCRIPT DEO 3
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente P-1")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK3
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\Deo 3_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CONEXION 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK4
+
+            Rep.SetProperty "Fechas",FEC
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_4_"&FEC2&".txt", 9, 0, true, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'INTERVALOS 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Reporte Split/Skill x Intervalos")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK4
+
+            Rep.SetProperty "FECHAS",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\inervalo4_"&FEC2&".zervi", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'SCRIPT DEO 4
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente P-1")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK4
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\Deo 4_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'CONEXION 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\ConexiondesconexionDeocms")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\ConexiondesconexionDeocms no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK5
+
+            Rep.SetProperty "Fechas",FEC
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\LOGIN_5_"&FEC2&".txt", 9, 0, true, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'INTERVALOS 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\EYN Reporte Split/Skill x Intervalos")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\EYN Reporte Split/Skill x Intervalos no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK5
+
+            Rep.SetProperty "FECHAS",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\inervalo5_"&FEC2&".zervi", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'SCRIPT DEO 5
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports("Historical\Designer\Validacion Skill Por Agente P-1")
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte Historical\Designer\Validacion Skill Por Agente P-1 no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK5
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+            b = Rep.ExportData("<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\Deo 5_"&FEC2&".txt", 9, 0, True, True, True)
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT INTERVALOS (1-5) FINALIZADO - fecha " & Fec
+Set Log = Nothing
+
+End Sub
