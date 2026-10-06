@@ -65,7 +65,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG1
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -128,7 +128,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG2
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -191,7 +191,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG3
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -254,7 +254,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG4
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -317,7 +317,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG5
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -380,7 +380,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG6
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -443,7 +443,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG7
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -506,7 +506,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG8
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -569,7 +569,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG9
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -632,7 +632,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG10
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -697,7 +697,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG1
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -760,7 +760,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG2
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -823,7 +823,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG3
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -886,7 +886,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG4
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -949,7 +949,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG5
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -1012,7 +1012,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG6
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -1075,7 +1075,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG7
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -1138,7 +1138,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG8
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -1201,7 +1201,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG9
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
@@ -1264,7 +1264,7 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG10
 
-            Rep.SetProperty "Fechas",Fec
+            Rep.SetProperty "Fecha",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
