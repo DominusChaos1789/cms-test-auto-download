@@ -28,12 +28,21 @@ All three use the same `SERVERNAME` and are redacted in this repo — see below.
 
 ### Code structure (all 3 merged scripts)
 
-All three keep the **exact same shape as the original, proven-working scripts**: one `Public Sub Main() ... End Sub`, nothing else in the file. An earlier version of this rewrite added a `Const` configuration block plus a few shared `Sub`/`Function` helpers *after* `End Sub` — that made the scripts stop dead right after `Loading Script` in `cvs.log` (CMS Supervisor's script host appears to only parse a single `Sub Main`, nothing more). So the current version does the same two things, but inline:
+All three keep the same shape as the original, proven-working scripts: one `Public Sub Main() ... End Sub`.
 
 - **Paths and report names as variables at the top of `Main`** — every network path (file-server roots, subfolders) and every `Historical\Designer\...` report name is assigned to a plain variable (`FILE_SERVER_...`, `REPORTE_...`) right under `On Error Resume Next`, the same way the original scripts already did for `SK=`/skill lists. Nothing is hardcoded inline further down; every block references these variables instead. Change a path or report name once, at the top.
-- **Inline error handling, same pattern the originals already used** — the "report not found" branch is untouched (MsgBox if interactive, `ACSERR.cvsLog` otherwise). What's new: every `CreateReport` failure and every `ExportData` failure now gets an explicit `Else` / `If Not b Then` branch that logs via `CreateObject("ACSERR.cvsLog")` + `AutoLogWrite`, instead of disappearing silently under `On Error Resume Next`. No shared helper routines — each check is written out inline, exactly like the rest of the script, since that's the structure CMS Supervisor's script host is confirmed to run.
+- **Inline error handling, same pattern the originals already used** — the "report not found" branch is untouched (MsgBox if interactive, `ACSERR.cvsLog` otherwise). What's new: every `CreateReport` failure and every `ExportData` failure now gets an explicit `Else` / `If Not b Then` branch that logs via `CreateObject("ACSERR.cvsLog")` + `AutoLogWrite`, instead of disappearing silently under `On Error Resume Next`.
 
 This doesn't change what data is pulled or where it's exported — same reports, same skills/agents, same destinations — it just makes failures visible in `cvs.log` instead of disappearing, and keeps the paths/report names in one place without changing the file's shape.
+
+### If a merged script won't load (stuck at "Loading Script:" in `cvs.log` forever)
+
+Two things actually caused this while developing these scripts — **neither was the `Sub Main` structure**, despite that being the first suspect:
+
+1. **Line endings must be CRLF, not LF.** CMS Supervisor's script host silently fails to get past `Loading Script:` — it never even reaches `Begin Script Host` in `cvs.log` — if the `.acsauto` file has Unix-style (LF-only) line endings. Save/re-save the file with Windows (CRLF) line endings (e.g. in Notepad++: Edit > EOL Conversion > Windows (CR LF), or in VS Code: click the line-ending indicator in the status bar and switch to CRLF).
+2. **`'SERVERNAME=` at the top of the file, and every `sServer`-equivalent value, must be your real CMS server address** — not a placeholder. CMS Supervisor looks up the stored scripting-user credentials in the registry using that exact server string. If it's still `<CMS_SERVER_IP>` (i.e. you copied straight from this public repo without replacing placeholders), the script loads and starts, but login fails with `No se puede crear el objeto ServidorLogin failed.` and `GetAutoUser_Err1: registry key doesn't exist` in `cvs.log`, because there's no stored login for a server literally named `<CMS_SERVER_IP>`.
+
+If you hit either of these: fix the line endings first (`Loading Script:` with nothing after it, not even `Begin Script Host`, points to this), then confirm every placeholder — especially `'SERVERNAME=` — has been replaced with your real values (`Begin Script Host` appears but login fails, points to this).
 
 ## Before using this
 
