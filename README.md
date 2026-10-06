@@ -28,16 +28,12 @@ All three use the same `SERVERNAME` and are redacted in this repo — see below.
 
 ### Code structure (all 3 merged scripts)
 
-All three were rewritten with the same structure:
+All three keep the **exact same shape as the original, proven-working scripts**: one `Public Sub Main() ... End Sub`, nothing else in the file. An earlier version of this rewrite added a `Const` configuration block plus a few shared `Sub`/`Function` helpers *after* `End Sub` — that made the scripts stop dead right after `Loading Script` in `cvs.log` (CMS Supervisor's script host appears to only parse a single `Sub Main`, nothing more). So the current version does the same two things, but inline:
 
-- **Configuration block at the top of `Main`** — every network path (file-server roots, subfolders) and every `Historical\Designer\...` report name is a named `Const` declared right under `On Error Resume Next`. Nothing is hardcoded inline in the report blocks below; they all reference `FILE_SERVER_...` / `REPORTE_...` constants. Change a path or a report name once, at the top, instead of hunting for it across 10+ repeated blocks.
-- **Shared error-handling helpers**, defined after `End Sub`:
-  - `GetReporte(ruta)` — looks up a `Historical\Designer` report and logs (MsgBox if interactive, `ACSERR.cvsLog` otherwise) if it isn't found, same message format as before.
-  - `ExportConLog(rep, ruta, contexto)` — wraps every `Rep.ExportData` call, checks its return value, and logs the destination path and `Err.Description` if it fails, instead of failing silently under `On Error Resume Next`.
-  - `LogError(msg)` / `LogInfo(msg)` — shared logging, same MsgBox/log behavior the original per-block code had, just centralized.
-  - Every report block now also logs if `CreateReport` itself fails (the original scripts had no `Else` branch for that case at all — a failure there was completely silent).
+- **Paths and report names as variables at the top of `Main`** — every network path (file-server roots, subfolders) and every `Historical\Designer\...` report name is assigned to a plain variable (`FILE_SERVER_...`, `REPORTE_...`) right under `On Error Resume Next`, the same way the original scripts already did for `SK=`/skill lists. Nothing is hardcoded inline further down; every block references these variables instead. Change a path or report name once, at the top.
+- **Inline error handling, same pattern the originals already used** — the "report not found" branch is untouched (MsgBox if interactive, `ACSERR.cvsLog` otherwise). What's new: every `CreateReport` failure and every `ExportData` failure now gets an explicit `Else` / `If Not b Then` branch that logs via `CreateObject("ACSERR.cvsLog")` + `AutoLogWrite`, instead of disappearing silently under `On Error Resume Next`. No shared helper routines — each check is written out inline, exactly like the rest of the script, since that's the structure CMS Supervisor's script host is confirmed to run.
 
-This doesn't change what data is pulled or where it's exported — it's the same reports, same skills/agents, same destinations — it just makes failures visible in the CMS error log instead of disappearing, and means there's one place to edit if a server, share, or report name changes.
+This doesn't change what data is pulled or where it's exported — same reports, same skills/agents, same destinations — it just makes failures visible in `cvs.log` instead of disappearing, and keeps the paths/report names in one place without changing the file's shape.
 
 ## Before using this
 

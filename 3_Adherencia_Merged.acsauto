@@ -1,42 +1,28 @@
 'LANGUAGE=ESO
 'SERVERNAME=<CMS_SERVER_IP>
-
-'=========================================================
-' ADHERENCIA - Telmex Hogar (10 rangos) + EYN (10 rangos)
-' Script automatico (.acsauto) para Avaya CMS Supervisor R21.
-' Pensado para correr desatendido: sin InputBox, y los
-' MsgBox solo aparecen si alguien lo corre a mano (modo
-' interactivo). Las rutas de red y los nombres de reporte
-' estan centralizados abajo en CONFIGURACION.
-'=========================================================
-
 Public Sub Main()
 
 On Error Resume Next
 
 '--------------------------------------------------------
 ' CONFIGURACION - rutas de red y reportes de Designer.
-' Cada bloque escribe en 2 destinos: la carpeta antigua y
-' la nueva carpeta ETL.
+' Edite solo aqui si cambia el servidor de archivos, las
+' carpetas de destino o los nombres de los reportes.
 '--------------------------------------------------------
-Const FILE_SERVER_TELMEX_OLD = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA CLARO SAC\"
-Const FILE_SERVER_EYN_OLD    = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA CLARO EMPRESAS\"
-Const FILE_SERVER_NEW        = "\\<FILE_SERVER_IP_2>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\"
+FILE_SERVER_TELMEX_OLD = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\08. ADHERENCIA CLARO SAC\"
+FILE_SERVER_EYN_OLD = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\15. ADHERENCIA CLARO EMPRESAS\"
+FILE_SERVER_NEW = "\\<FILE_SERVER_IP_2>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\4_adherencia_masivo_empresas\"
 
-Const REPORTE_TELMEX = "Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N"
-Const REPORTE_EYN    = "Historical\Designer\EYN Base_Tbl_Ag-N"
+REPORTE_TELMEX = "Historical\Designer\[Call Center Telmex Hogar] Base_Tbl_Ag-N"
+REPORTE_EYN = "Historical\Designer\EYN Base_Tbl_Ag-N"
 
-'--------------------------------------------------------
-' FECHA AUTOMATICA (por defecto: ayer).
-'--------------------------------------------------------
+'FECHA AUTOMATICA (por defecto: ayer).
 DiasAtras = 1
 d = DateAdd("d", -DiasAtras, Date)
 Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
 Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
 
-'--------------------------------------------------------
-' RANGOS DE AGENTE (compartidos por las 2 empresas)
-'--------------------------------------------------------
+'RANGOS DE AGENTE (compartidos por las 2 empresas)
 AG1="306000-307000"
 AG2="307000-308000"
 AG3="370000-371000"
@@ -53,9 +39,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 1 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -70,12 +65,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG1
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 1_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 1"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 1_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 1 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 1: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 1 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -83,8 +91,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 1: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 1: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -93,9 +102,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 2 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -110,12 +128,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG2
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 2_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 2"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 2_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 2 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 2: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 2 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -123,8 +154,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 2: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 2: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -133,9 +165,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 3 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -150,12 +191,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG3
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 3_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 3"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 3_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 3 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 3: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 3 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -163,8 +217,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 3: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 3: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -173,9 +228,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 4 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -190,12 +254,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG4
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 4_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 4"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 4_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 4 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 4: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 4 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -203,8 +280,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 4: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 4: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -213,9 +291,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 5 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -230,12 +317,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG5
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 5_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 5"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 5_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 5 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 5: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 5 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -243,8 +343,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 5: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 5: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -253,9 +354,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 6 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -270,12 +380,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG6
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 6_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 6"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 6_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 6 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 6_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 6: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 6_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 6 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -283,8 +406,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 6: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 6: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -293,9 +417,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 7 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -310,12 +443,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG7
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 7_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 7"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 7_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 7 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 7_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 7: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 7_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 7 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -323,8 +469,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 7: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 7: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -333,9 +480,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 8 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -350,12 +506,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG8
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 8_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 8"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 8_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 8 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 8_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 8: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 8_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 8 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -363,8 +532,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 8: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 8: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -373,9 +543,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 9 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -390,12 +569,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG9
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 9_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 9"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 9_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 9 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 9_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 9: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 9_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 9 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -403,8 +595,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 9: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 9: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -413,9 +606,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH TELMEX HOGAR 10 ===
 
-    Set Info = GetReporte(REPORTE_TELMEX)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_TELMEX)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_TELMEX & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -430,12 +632,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG10
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_TELMEX_OLD & "ADHERENCIA 10_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 10"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIA 10_" & Fec2 & ".txt", "CARGUE ADH TELMEX HOGAR 10 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_TELMEX_OLD & "ADHERENCIA 10_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 10: fallo la exportacion a " & FILE_SERVER_TELMEX_OLD & "ADHERENCIA 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIA 10_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 10 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIA 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -443,8 +658,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH TELMEX HOGAR 10: no se pudo crear el reporte " & REPORTE_TELMEX & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH TELMEX HOGAR 10: no se pudo crear el reporte " & REPORTE_TELMEX
+            Set Log = Nothing
         End If
 
     End If
@@ -455,9 +671,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 1 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -472,12 +697,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG1
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 1_" & Fec2 & ".txt", "CARGUE ADH EYN 1"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 1_" & Fec2 & ".txt", "CARGUE ADH EYN 1 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 1: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 1 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -485,8 +723,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 1: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 1: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -495,9 +734,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 2 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -512,12 +760,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG2
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 2_" & Fec2 & ".txt", "CARGUE ADH EYN 2"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 2_" & Fec2 & ".txt", "CARGUE ADH EYN 2 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 2: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 2 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -525,8 +786,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 2: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 2: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -535,9 +797,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 3 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -552,12 +823,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG3
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 3_" & Fec2 & ".txt", "CARGUE ADH EYN 3"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 3_" & Fec2 & ".txt", "CARGUE ADH EYN 3 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 3: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 3 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -565,8 +849,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 3: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 3: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -575,9 +860,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 4 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -592,12 +886,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG4
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 4_" & Fec2 & ".txt", "CARGUE ADH EYN 4"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 4_" & Fec2 & ".txt", "CARGUE ADH EYN 4 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 4: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 4 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -605,8 +912,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 4: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 4: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -615,9 +923,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 5 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -632,12 +949,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG5
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 5_" & Fec2 & ".txt", "CARGUE ADH EYN 5"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 5_" & Fec2 & ".txt", "CARGUE ADH EYN 5 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 5: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 5 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -645,8 +975,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 5: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 5: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -655,9 +986,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 6 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -672,12 +1012,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG6
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 6_" & Fec2 & ".txt", "CARGUE ADH EYN 6"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 6_" & Fec2 & ".txt", "CARGUE ADH EYN 6 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 6_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 6: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 6_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 6 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -685,8 +1038,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 6: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 6: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -695,9 +1049,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 7 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -712,12 +1075,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG7
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 7_" & Fec2 & ".txt", "CARGUE ADH EYN 7"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 7_" & Fec2 & ".txt", "CARGUE ADH EYN 7 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 7_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 7: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 7_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 7 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -725,8 +1101,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 7: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 7: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -735,9 +1112,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 8 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -752,12 +1138,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG8
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 8_" & Fec2 & ".txt", "CARGUE ADH EYN 8"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 8_" & Fec2 & ".txt", "CARGUE ADH EYN 8 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 8_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 8: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 8_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 8 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -765,8 +1164,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 8: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 8: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -775,9 +1175,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 9 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -792,12 +1201,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG9
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 9_" & Fec2 & ".txt", "CARGUE ADH EYN 9"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 9_" & Fec2 & ".txt", "CARGUE ADH EYN 9 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 9_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 9: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 9_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 9 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -805,8 +1227,9 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 9: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 9: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
@@ -815,9 +1238,18 @@ AG10="390001-391000"
 
 '=== CARGUE ADH EYN 10 ===
 
-    Set Info = GetReporte(REPORTE_EYN)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_EYN)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_EYN & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -832,12 +1264,25 @@ AG10="390001-391000"
 
             Rep.SetProperty "Agentes",AG10
 
-            Rep.SetProperty "Fecha",Fec
+            Rep.SetProperty "Fechas",Fec
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 10_" & Fec2 & ".txt", "CARGUE ADH EYN 10"
-            ExportConLog Rep, FILE_SERVER_NEW & "ADHERENCIAEMP 10_" & Fec2 & ".txt", "CARGUE ADH EYN 10 (copia ETL)"
+                        b = Rep.ExportData(FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 10_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 10: fallo la exportacion a " & FILE_SERVER_EYN_OLD & "ADHERENCIAEMP 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "ADHERENCIAEMP 10_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE ADH EYN 10 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "ADHERENCIAEMP 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -845,57 +1290,17 @@ AG10="390001-391000"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE ADH EYN 10: no se pudo crear el reporte " & REPORTE_EYN & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE ADH EYN 10: no se pudo crear el reporte " & REPORTE_EYN
+            Set Log = Nothing
         End If
 
     End If
     Set Info = Nothing
 
 'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
-LogInfo "SCRIPT ADHERENCIA (TELMEX+EYN) FINALIZADO - fecha " & Fec
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT ADHERENCIA (TELMEX+EYN) FINALIZADO - fecha " & Fec
+Set Log = Nothing
 
-End Sub
-
-'=========================================================
-' FUNCIONES AUXILIARES - log y manejo de errores.
-' Mismo comportamiento que antes (MsgBox solo si es
-' interactivo; si no, log con ACSERR.cvsLog) pero ahora
-' centralizado, y cada CreateReport/ExportData se revisa
-' y queda registrado si falla, en vez de fallar en silencio.
-'=========================================================
-
-Sub LogInfo(msg)
-    Dim Log
-    Set Log = CreateObject("ACSERR.cvsLog")
-    Log.AutoLogWrite msg
-    Set Log = Nothing
-End Sub
-
-Sub LogError(msg)
-    If cvsSrv.Interactive Then
-        MsgBox msg, vbExclamation Or vbOKOnly, "Avaya CMS Supervisor"
-    Else
-        Dim Log
-        Set Log = CreateObject("ACSERR.cvsLog")
-        Log.AutoLogWrite msg
-        Set Log = Nothing
-    End If
-End Sub
-
-Function GetReporte(ruta)
-    cvsSrv.Reports.ACD = 1
-    Set GetReporte = cvsSrv.Reports.Reports(ruta)
-    If GetReporte Is Nothing Then
-        LogError "El reporte " & ruta & " no fue encontrado en la ACD 1."
-    End If
-End Function
-
-Sub ExportConLog(rep, ruta, contexto)
-    Dim ok
-    ok = rep.ExportData(ruta, 9, 0, True, True, True)
-    If Not ok Then
-        LogError contexto & ": fallo la exportacion a """ & ruta & """ - " & Err.Description
-        Err.Clear
-    End If
 End Sub

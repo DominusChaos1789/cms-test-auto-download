@@ -1,65 +1,60 @@
 'LANGUAGE=ESO
 'SERVERNAME=<CMS_SERVER_IP>
-
-'=========================================================
-' ROIF MENSUAL - 11 bloques CARGUE (5 scripts originales)
-' Script automatico (.acsauto) para Avaya CMS Supervisor R21.
-' Pensado para correr desatendido: sin InputBox, y los
-' MsgBox solo aparecen si alguien lo corre a mano (modo
-' interactivo). Las rutas de red y los nombres de reporte
-' estan centralizados abajo en CONFIGURACION.
-'=========================================================
-
 Public Sub Main()
 
 On Error Resume Next
 
 '--------------------------------------------------------
-' CONFIGURACION - rutas de red y reporte de Designer.
-' Cada CARGUE escribe en 2 destinos: la carpeta antigua y
-' la nueva carpeta ETL.
+' CONFIGURACION - rutas de red y reportes de Designer.
+' Edite solo aqui si cambia el servidor de archivos, las
+' carpetas de destino o los nombres de los reportes.
 '--------------------------------------------------------
-Const FILE_SERVER_OLD = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\"
-Const FILE_SERVER_NEW = "\\<FILE_SERVER_IP_2>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\"
-Const REPORTE_ROIF = "Historical\Designer\Validacion Skill Por Agente"
+FILE_SERVER_OLD = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\12. ROIF MENSUAL\"
+FILE_SERVER_NEW = "\\<FILE_SERVER_IP_2>\pruebas\ETL\AREAS DE APOYO\Avaya_Scripts_CMS\3_roif_mensual_llamadas_asesor_skill\"
+REPORTE_ROIF = "Historical\Designer\Validacion Skill Por Agente"
 
-'--------------------------------------------------------
-' FECHA AUTOMATICA (por defecto: ayer).
-'--------------------------------------------------------
+'FECHA AUTOMATICA (por defecto: ayer).
 DiasAtras = 1
 d = DateAdd("d", -DiasAtras, Date)
 Fec = Right("0" & Day(d), 2) & "/" & Right("0" & Month(d), 2) & "/" & Year(d)
 Fec2 = Year(d) & Right("0" & Month(d), 2) & Right("0" & Day(d), 2)
 
-'--------------------------------------------------------
-' SKILLS - script 1 original (4 lotes -> CARGUE 1,2,9,10)
-'--------------------------------------------------------
+'SKILLS - script 1 original (4 lotes -> CARGUE 1,2,9,10)
 R1SK1="<SKILL_IDS_ROIF_S1_1>"
 R1SK2="<SKILL_IDS_ROIF_S1_2>"
 R1SK3="<SKILL_IDS_ROIF_S1_3>"
 R1SK4="<SKILL_IDS_ROIF_S1_4>"
 
-' SKILL - script 2 original (-> CARGUE 3)
+'SKILL - script 2 original (-> CARGUE 3)
 R2SK="<SKILL_IDS_ROIF_S2>"
 
-' SKILL - script 3 original (-> CARGUE 4)
+'SKILL - script 3 original (-> CARGUE 4)
 R3SK="<SKILL_IDS_ROIF_S3>"
 
-' SKILLS - script 4 original (4 lotes -> CARGUE 5,6,7,8)
+'SKILLS - script 4 original (4 lotes -> CARGUE 5,6,7,8)
 R4SK1="<SKILL_IDS_ROIF_S4_1>"
 R4SK2="<SKILL_IDS_ROIF_S4_2>"
 R4SK3="<SKILL_IDS_ROIF_S4_3>"
 R4SK4="<SKILL_IDS_ROIF_S4_4>"
 
-' SKILL - script 5 original (-> CARGUE 11)
+'SKILL - script 5 original (-> CARGUE 11)
 R5SK="<SKILL_IDS_ROIF_S5>"
 
 
 '=== CARGUE 1 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -78,9 +73,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 1_" & Fec2 & ".txt", "CARGUE 1"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 1_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 1_" & Fec2 & ".txt", "CARGUE 1 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 1: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 1 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -88,8 +95,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 1: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 1: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -98,9 +106,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 2 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -119,9 +136,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 2_" & Fec2 & ".txt", "CARGUE 2"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 2_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 2_" & Fec2 & ".txt", "CARGUE 2 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 2: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 2 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -129,8 +158,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 2: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 2: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -139,9 +169,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 9 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -160,9 +199,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 9_" & Fec2 & ".txt", "CARGUE 9"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 9_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 9_" & Fec2 & ".txt", "CARGUE 9 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 9: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 9_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 9 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 9_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -170,8 +221,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 9: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 9: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -180,9 +232,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 10 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -201,9 +262,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 10_" & Fec2 & ".txt", "CARGUE 10"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 10_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 10_" & Fec2 & ".txt", "CARGUE 10 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 10: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 10_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 10 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 10_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -211,8 +284,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 10: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 10: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -221,9 +295,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 3 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -242,9 +325,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 3_" & Fec2 & ".txt", "CARGUE 3"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 3_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 3_" & Fec2 & ".txt", "CARGUE 3 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 3: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 3 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -252,8 +347,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 3: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 3: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -262,9 +358,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 4 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -283,9 +388,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 4_" & Fec2 & ".txt", "CARGUE 4"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 4_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 4_" & Fec2 & ".txt", "CARGUE 4 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 4: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 4 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -293,8 +410,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 4: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 4: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -303,9 +421,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 5 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -324,9 +451,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 5_" & Fec2 & ".txt", "CARGUE 5"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 5_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 5_" & Fec2 & ".txt", "CARGUE 5 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 5: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 5 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -334,8 +473,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 5: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 5: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -344,9 +484,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 6 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -365,9 +514,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 6_" & Fec2 & ".txt", "CARGUE 6"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 6_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 6_" & Fec2 & ".txt", "CARGUE 6 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 6: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 6_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 6 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 6_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -375,8 +536,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 6: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 6: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -385,9 +547,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 7 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -406,9 +577,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 7_" & Fec2 & ".txt", "CARGUE 7"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 7_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 7_" & Fec2 & ".txt", "CARGUE 7 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 7: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 7_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 7 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 7_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -416,8 +599,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 7: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 7: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -426,9 +610,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 8 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -447,9 +640,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 8_" & Fec2 & ".txt", "CARGUE 8"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 8_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 8_" & Fec2 & ".txt", "CARGUE 8 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 8: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 8_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 8 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 8_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -457,8 +662,9 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 8: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 8: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
@@ -467,9 +673,18 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
 '=== CARGUE 11 ===
 
-    Set Info = GetReporte(REPORTE_ROIF)
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_ROIF)
 
-    If Not Info Is Nothing Then
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_ROIF & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
 
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
@@ -488,9 +703,21 @@ R5SK="<SKILL_IDS_ROIF_S5>"
 
             Rep.SetProperty "Intervalo","00:00-23:45"
 
-            ExportConLog Rep, FILE_SERVER_OLD & "CARGUE 11_" & Fec2 & ".txt", "CARGUE 11"
+                        b = Rep.ExportData(FILE_SERVER_OLD & "CARGUE 11_" & Fec2 & ".txt", 9, 0, True, True, True)
 
-            ExportConLog Rep, FILE_SERVER_NEW & "CARGUE 11_" & Fec2 & ".txt", "CARGUE 11 (copia ETL)"
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 11: fallo la exportacion a " & FILE_SERVER_OLD & "CARGUE 11_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+                        b = Rep.ExportData(FILE_SERVER_NEW & "CARGUE 11_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CARGUE 11 (copia ETL): fallo la exportacion a " & FILE_SERVER_NEW & "CARGUE 11_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
 
             rep.quit
 
@@ -498,57 +725,17 @@ R5SK="<SKILL_IDS_ROIF_S5>"
             Set Rep = Nothing
 
         Else
-            LogError "CARGUE 11: no se pudo crear el reporte " & REPORTE_ROIF & " - " & Err.Description
-            Err.Clear
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CARGUE 11: no se pudo crear el reporte " & REPORTE_ROIF
+            Set Log = Nothing
         End If
 
     End If
     Set Info = Nothing
 
 'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
-LogInfo "SCRIPT ROIF MENSUAL (1-11) FINALIZADO - fecha " & Fec
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT ROIF MENSUAL (1-11) FINALIZADO - fecha " & Fec
+Set Log = Nothing
 
-End Sub
-
-'=========================================================
-' FUNCIONES AUXILIARES - log y manejo de errores.
-' Mismo comportamiento que antes (MsgBox solo si es
-' interactivo; si no, log con ACSERR.cvsLog) pero ahora
-' centralizado, y cada CreateReport/ExportData se revisa
-' y queda registrado si falla, en vez de fallar en silencio.
-'=========================================================
-
-Sub LogInfo(msg)
-    Dim Log
-    Set Log = CreateObject("ACSERR.cvsLog")
-    Log.AutoLogWrite msg
-    Set Log = Nothing
-End Sub
-
-Sub LogError(msg)
-    If cvsSrv.Interactive Then
-        MsgBox msg, vbExclamation Or vbOKOnly, "Avaya CMS Supervisor"
-    Else
-        Dim Log
-        Set Log = CreateObject("ACSERR.cvsLog")
-        Log.AutoLogWrite msg
-        Set Log = Nothing
-    End If
-End Sub
-
-Function GetReporte(ruta)
-    cvsSrv.Reports.ACD = 1
-    Set GetReporte = cvsSrv.Reports.Reports(ruta)
-    If GetReporte Is Nothing Then
-        LogError "El reporte " & ruta & " no fue encontrado en la ACD 1."
-    End If
-End Function
-
-Sub ExportConLog(rep, ruta, contexto)
-    Dim ok
-    ok = rep.ExportData(ruta, 9, 0, True, True, True)
-    If Not ok Then
-        LogError contexto & ": fallo la exportacion a """ & ruta & """ - " & Err.Description
-        Err.Clear
-    End If
 End Sub
