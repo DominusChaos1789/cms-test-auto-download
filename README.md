@@ -22,9 +22,22 @@ All three use the same `SERVERNAME` and are redacted in this repo — see below.
 
 ### Notes on each merged script
 
-- **Intervalos** — the "Conexión" report (`ConexiondesconexionDeocms`) block for each of the 5 groups now pulls the **last 3 days** (yesterday, 2 days ago, 3 days ago) in a single report session, exporting one `LOGIN_n_<date>.txt` per day. The "Intervalos" and "DEO" blocks stay single-day (yesterday only), unchanged.
+- **Intervalos** — the "Conexión" report (`ConexiondesconexionDeocms`) block for each of the 5 groups now pulls the **last 3 days** (yesterday, 2 days ago, 3 days ago) in a single report session, exporting one `LOGIN_n_<date>.txt` per day. The "Intervalos" and "DEO" blocks stay single-day (yesterday only), unchanged. DEO 2 still carries the original extra export of a WFM occupation file (`OCUPACION-INFNEWMOV.csv`) to a third file server, in the same report session.
 - **ROIF Mensual** — the 11 `CARGUE` output files are produced across the 5 original scripts like this: script 1 → CARGUE 1, 2, 9, 10; script 2 → CARGUE 3; script 3 → CARGUE 4; script 4 → CARGUE 5, 6, 7, 8; script 5 → CARGUE 11. Report used: `Historical\Designer\Validacion Skill Por Agente` (no "P-1" suffix, unlike Intervalos' DEO report). One assumption carried over from the original scripts: within script 1 and script 4 (each originally split into 4 skill batches), the batch-to-CARGUE order is assumed sequential (1st batch → lowest CARGUE number, ...). Only CARGUE 1/2 were directly confirmed against the original screenshots — double check CARGUE 9/10 (script 1) and 5/6/7/8 (script 4) produce the right agents the first time you run it. Also, the original scripts had a redundant `z = cvsSrv.Reports.CreateReport(Info,Rep)` line right after the real `b = ...CreateReport(...)` call in every ROIF block — that looked like an accidental duplicate (it would open a second, never-closed report task per block), so it was dropped here rather than carried forward, since leaked report tasks are part of what causes the CMS server overload this project is trying to avoid.
 - **Adherencia** — unchanged from the original scripts aside from automatic dates and no `MsgBox`.
+
+### Code structure (all 3 merged scripts)
+
+All three were rewritten with the same structure:
+
+- **Configuration block at the top of `Main`** — every network path (file-server roots, subfolders) and every `Historical\Designer\...` report name is a named `Const` declared right under `On Error Resume Next`. Nothing is hardcoded inline in the report blocks below; they all reference `FILE_SERVER_...` / `REPORTE_...` constants. Change a path or a report name once, at the top, instead of hunting for it across 10+ repeated blocks.
+- **Shared error-handling helpers**, defined after `End Sub`:
+  - `GetReporte(ruta)` — looks up a `Historical\Designer` report and logs (MsgBox if interactive, `ACSERR.cvsLog` otherwise) if it isn't found, same message format as before.
+  - `ExportConLog(rep, ruta, contexto)` — wraps every `Rep.ExportData` call, checks its return value, and logs the destination path and `Err.Description` if it fails, instead of failing silently under `On Error Resume Next`.
+  - `LogError(msg)` / `LogInfo(msg)` — shared logging, same MsgBox/log behavior the original per-block code had, just centralized.
+  - Every report block now also logs if `CreateReport` itself fails (the original scripts had no `Else` branch for that case at all — a failure there was completely silent).
+
+This doesn't change what data is pulled or where it's exported — it's the same reports, same skills/agents, same destinations — it just makes failures visible in the CMS error log instead of disappearing, and means there's one place to edit if a server, share, or report name changes.
 
 ## Before using this
 
