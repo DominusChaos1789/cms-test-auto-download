@@ -59,6 +59,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
         End If
     Else
 
+        ' --- dia -1 ---
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
         If b Then
@@ -71,7 +72,6 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
             Rep.TimeZone = "default"
 
             Rep.SetProperty "Skill",SK1
-
             Rep.SetProperty "Fechas",FecD1
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D1 & ".txt", 9, 0, True, True, True)
 
@@ -81,6 +81,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 1 dia -1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -2 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK1
             Rep.SetProperty "Fechas",FecD2
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D2 & ".txt", 9, 0, True, True, True)
 
@@ -90,6 +113,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 1 dia -2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -3 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK1
             Rep.SetProperty "Fechas",FecD3
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D3 & ".txt", 9, 0, True, True, True)
 
@@ -99,15 +145,13 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
-
             rep.quit
-
             If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
             Set Rep = Nothing
 
         Else
             Set Log = CreateObject("ACSERR.cvsLog")
-            Log.AutoLogWrite "CONEXION 1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Log.AutoLogWrite "CONEXION 1 dia -3: no se pudo crear el reporte " & REPORTE_CONEXION
             Set Log = Nothing
         End If
 
@@ -240,6 +284,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
         End If
     Else
 
+        ' --- dia -1 ---
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
         If b Then
@@ -252,7 +297,6 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
             Rep.TimeZone = "default"
 
             Rep.SetProperty "Skill",SK2
-
             Rep.SetProperty "Fechas",FecD1
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D1 & ".txt", 9, 0, True, True, True)
 
@@ -262,6 +306,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 2 dia -1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -2 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK2
             Rep.SetProperty "Fechas",FecD2
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D2 & ".txt", 9, 0, True, True, True)
 
@@ -271,6 +338,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 2 dia -2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -3 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK2
             Rep.SetProperty "Fechas",FecD3
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D3 & ".txt", 9, 0, True, True, True)
 
@@ -280,15 +370,13 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
-
             rep.quit
-
             If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
             Set Rep = Nothing
 
         Else
             Set Log = CreateObject("ACSERR.cvsLog")
-            Log.AutoLogWrite "CONEXION 2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Log.AutoLogWrite "CONEXION 2 dia -3: no se pudo crear el reporte " & REPORTE_CONEXION
             Set Log = Nothing
         End If
 
@@ -429,6 +517,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
         End If
     Else
 
+        ' --- dia -1 ---
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
         If b Then
@@ -441,7 +530,6 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
             Rep.TimeZone = "default"
 
             Rep.SetProperty "Skill",SK3
-
             Rep.SetProperty "Fechas",FecD1
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D1 & ".txt", 9, 0, True, True, True)
 
@@ -451,6 +539,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 3 dia -1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -2 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK3
             Rep.SetProperty "Fechas",FecD2
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D2 & ".txt", 9, 0, True, True, True)
 
@@ -460,6 +571,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 3 dia -2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -3 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK3
             Rep.SetProperty "Fechas",FecD3
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D3 & ".txt", 9, 0, True, True, True)
 
@@ -469,15 +603,13 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
-
             rep.quit
-
             If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
             Set Rep = Nothing
 
         Else
             Set Log = CreateObject("ACSERR.cvsLog")
-            Log.AutoLogWrite "CONEXION 3: no se pudo crear el reporte " & REPORTE_CONEXION
+            Log.AutoLogWrite "CONEXION 3 dia -3: no se pudo crear el reporte " & REPORTE_CONEXION
             Set Log = Nothing
         End If
 
@@ -610,6 +742,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
         End If
     Else
 
+        ' --- dia -1 ---
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
         If b Then
@@ -622,7 +755,6 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
             Rep.TimeZone = "default"
 
             Rep.SetProperty "Skill",SK4
-
             Rep.SetProperty "Fechas",FecD1
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D1 & ".txt", 9, 0, True, True, True)
 
@@ -632,6 +764,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 4 dia -1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -2 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK4
             Rep.SetProperty "Fechas",FecD2
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D2 & ".txt", 9, 0, True, True, True)
 
@@ -641,6 +796,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 4 dia -2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -3 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK4
             Rep.SetProperty "Fechas",FecD3
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D3 & ".txt", 9, 0, True, True, True)
 
@@ -650,15 +828,13 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
-
             rep.quit
-
             If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
             Set Rep = Nothing
 
         Else
             Set Log = CreateObject("ACSERR.cvsLog")
-            Log.AutoLogWrite "CONEXION 4: no se pudo crear el reporte " & REPORTE_CONEXION
+            Log.AutoLogWrite "CONEXION 4 dia -3: no se pudo crear el reporte " & REPORTE_CONEXION
             Set Log = Nothing
         End If
 
@@ -791,6 +967,7 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
         End If
     Else
 
+        ' --- dia -1 ---
         b = cvsSrv.Reports.CreateReport(Info,Rep)
 
         If b Then
@@ -803,7 +980,6 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
             Rep.TimeZone = "default"
 
             Rep.SetProperty "Skill",SK5
-
             Rep.SetProperty "Fechas",FecD1
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D1 & ".txt", 9, 0, True, True, True)
 
@@ -813,6 +989,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 5 dia -1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -2 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK5
             Rep.SetProperty "Fechas",FecD2
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D2 & ".txt", 9, 0, True, True, True)
 
@@ -822,6 +1021,29 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
+            rep.quit
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 5 dia -2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+        ' --- dia -3 ---
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK5
             Rep.SetProperty "Fechas",FecD3
             b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D3 & ".txt", 9, 0, True, True, True)
 
@@ -831,15 +1053,13 @@ SK5="<SKILL_IDS_INTERVALOS_5>"
                 Set Log = Nothing
             End If
 
-
             rep.quit
-
             If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
             Set Rep = Nothing
 
         Else
             Set Log = CreateObject("ACSERR.cvsLog")
-            Log.AutoLogWrite "CONEXION 5: no se pudo crear el reporte " & REPORTE_CONEXION
+            Log.AutoLogWrite "CONEXION 5 dia -3: no se pudo crear el reporte " & REPORTE_CONEXION
             Set Log = Nothing
         End If
 
