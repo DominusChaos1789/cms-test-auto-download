@@ -86,3 +86,16 @@ Keep your filled-in copy **local** — don't commit real server IPs, internal sh
 - `3_Adherencia_Merged.acsauto` — merged automatic script covering Telmex Hogar + EYN adherencia reports (10 agent-range blocks each), redacted.
 - `run_cms_scripts.bat` — launcher that runs the 3 merged scripts in sequence, with process cleanup between each.
 - `SIC General 1_Admininfo.acsauto` — original single-report example, superseded by `1_Intervalos_Merged.acsauto`; kept for reference.
+- `nexa-ods-sync/` — variant of all 3 merged scripts plus a matching launcher; see below.
+
+## `nexa-ods-sync/` variant
+
+A second copy of the 3 merged scripts and a matching `.bat`, for a setup that only needs one export destination per report (instead of the extra WFM/ETL copy) and then moves everything to a separate Nexa/ODS share once all three scripts finish.
+
+Differences from the root-level scripts:
+
+- **`1_Intervalos_Merged.acsauto`** — the WFM occupation-file export (the `FILE_SERVER_WFM`/`ARCHIVO_WFM` variables and the `OCUPACION-INFNEWMOV.csv` export block inside DEO 2) is removed entirely. The `.zervi` export extensions used by the "Intervalos" report blocks are now `.txt`.
+- **`2_ROIF_Mensual_Merged.acsauto`** and **`3_Adherencia_Merged.acsauto`** — the second ("copia ETL") export to `FILE_SERVER_NEW` is removed; each report now exports once, to its original path only.
+- **`run_cms_scripts.bat`** — same sequential launcher as the root-level one, with one addition: after all 3 scripts finish, it `robocopy /MOV`s each report's export folder into a same-named subfolder under a Nexa/ODS destination share (`<NEXA_SYNC_DEST_ROOT>` placeholder here; real value redacted the same way as the other server paths). `/MOV` copies the files to the destination and then deletes them from the source, so the original folders stay in place but end up empty after each run — nothing is deleted until the copy to the new location succeeds.
+
+Before using this folder, replace `<NEXA_SYNC_DEST_ROOT>` in `run_cms_scripts.bat` with your real destination UNC path, on top of the usual placeholders listed above (`<FILE_SERVER_IP>`, `<CLIENT>`, `<SKILL_IDS_...>`, etc. — all three `.acsauto` files here are redacted the same way as the root-level ones).

@@ -1,0 +1,955 @@
+'LANGUAGE=ESO
+'SERVERNAME=<CMS_SERVER_IP>
+Public Sub Main()
+
+On Error Resume Next
+
+'--------------------------------------------------------
+' CONFIGURACION - rutas de red y reportes de Designer.
+' Edite solo aqui si cambia el servidor de archivos, las
+' carpetas de destino o los nombres de los reportes.
+'--------------------------------------------------------
+FILE_SERVER_LOG = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\13. LOG\"
+FILE_SERVER_INTERVALOS = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\INTERVALOS\"
+FILE_SERVER_DEO = "\\<FILE_SERVER_IP>\AdminInfo\<CLIENT>\16. DEO\"
+
+REPORTE_CONEXION = "Historical\Designer\ConexiondesconexionDeocms"
+REPORTE_INTERVALOS = "Historical\Designer\EYN Reporte Split/Skill x Intervalos"
+REPORTE_DEO = "Historical\Designer\Validacion Skill Por Agente P-1"
+
+'FECHAS. "Fec"/"Fec2" = ayer (Intervalos y DEO).
+'La Conexion trae ademas los 2 dias anteriores (-2,-3) en la misma sesion.
+d1 = DateAdd("d", -1, Date)
+FecD1 = Right("0" & Day(d1), 2) & "/" & Right("0" & Month(d1), 2) & "/" & Year(d1)
+Fec2D1 = Year(d1) & Right("0" & Month(d1), 2) & Right("0" & Day(d1), 2)
+
+d2 = DateAdd("d", -2, Date)
+FecD2 = Right("0" & Day(d2), 2) & "/" & Right("0" & Month(d2), 2) & "/" & Year(d2)
+Fec2D2 = Year(d2) & Right("0" & Month(d2), 2) & Right("0" & Day(d2), 2)
+
+d3 = DateAdd("d", -3, Date)
+FecD3 = Right("0" & Day(d3), 2) & "/" & Right("0" & Month(d3), 2) & "/" & Year(d3)
+Fec2D3 = Year(d3) & Right("0" & Month(d3), 2) & Right("0" & Day(d3), 2)
+
+Fec = FecD1
+Fec2 = Fec2D1
+
+'SKILLS POR GRUPO (uno por cada script de intervalos original)
+SK1="<SKILL_IDS_INTERVALOS_1>"
+SK2="<SKILL_IDS_INTERVALOS_2>"
+SK3="<SKILL_IDS_INTERVALOS_3>"
+SK4="<SKILL_IDS_INTERVALOS_4>"
+SK5="<SKILL_IDS_INTERVALOS_5>"
+
+
+'=== CONEXION 1 (trae ayer, antier y trasantier: -1/-2/-3 dias) ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_CONEXION)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK1
+
+            Rep.SetProperty "Fechas",FecD1
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D1 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 1 dia -1: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_1_" & Fec2D1 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD2
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 1 dia -2: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_1_" & Fec2D2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD3
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_1_" & Fec2D3 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 1 dia -3: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_1_" & Fec2D3 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 1: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== INTERVALOS 1 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_INTERVALOS)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK1
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_INTERVALOS & "inervalo1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "INTERVALOS 1: fallo la exportacion a " & FILE_SERVER_INTERVALOS & "inervalo1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "INTERVALOS 1: no se pudo crear el reporte " & REPORTE_INTERVALOS
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== DEO 1 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_DEO)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK1
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_DEO & "Deo 1_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "DEO 1: fallo la exportacion a " & FILE_SERVER_DEO & "Deo 1_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "DEO 1: no se pudo crear el reporte " & REPORTE_DEO
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== CONEXION 2 (trae ayer, antier y trasantier: -1/-2/-3 dias) ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_CONEXION)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK2
+
+            Rep.SetProperty "Fechas",FecD1
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D1 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 2 dia -1: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_2_" & Fec2D1 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD2
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 2 dia -2: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_2_" & Fec2D2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD3
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_2_" & Fec2D3 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 2 dia -3: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_2_" & Fec2D3 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 2: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== INTERVALOS 2 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_INTERVALOS)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK2
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_INTERVALOS & "inervalo2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "INTERVALOS 2: fallo la exportacion a " & FILE_SERVER_INTERVALOS & "inervalo2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "INTERVALOS 2: no se pudo crear el reporte " & REPORTE_INTERVALOS
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== DEO 2 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_DEO)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK2
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_DEO & "Deo 2_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "DEO 2: fallo la exportacion a " & FILE_SERVER_DEO & "Deo 2_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "DEO 2: no se pudo crear el reporte " & REPORTE_DEO
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== CONEXION 3 (trae ayer, antier y trasantier: -1/-2/-3 dias) ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_CONEXION)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK3
+
+            Rep.SetProperty "Fechas",FecD1
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D1 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 3 dia -1: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_3_" & Fec2D1 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD2
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 3 dia -2: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_3_" & Fec2D2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD3
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_3_" & Fec2D3 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 3 dia -3: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_3_" & Fec2D3 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 3: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== INTERVALOS 3 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_INTERVALOS)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK3
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_INTERVALOS & "inervalo3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "INTERVALOS 3: fallo la exportacion a " & FILE_SERVER_INTERVALOS & "inervalo3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "INTERVALOS 3: no se pudo crear el reporte " & REPORTE_INTERVALOS
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== DEO 3 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_DEO)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK3
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_DEO & "Deo 3_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "DEO 3: fallo la exportacion a " & FILE_SERVER_DEO & "Deo 3_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "DEO 3: no se pudo crear el reporte " & REPORTE_DEO
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== CONEXION 4 (trae ayer, antier y trasantier: -1/-2/-3 dias) ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_CONEXION)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK4
+
+            Rep.SetProperty "Fechas",FecD1
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D1 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 4 dia -1: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_4_" & Fec2D1 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD2
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 4 dia -2: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_4_" & Fec2D2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD3
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_4_" & Fec2D3 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 4 dia -3: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_4_" & Fec2D3 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 4: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== INTERVALOS 4 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_INTERVALOS)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK4
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_INTERVALOS & "inervalo4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "INTERVALOS 4: fallo la exportacion a " & FILE_SERVER_INTERVALOS & "inervalo4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "INTERVALOS 4: no se pudo crear el reporte " & REPORTE_INTERVALOS
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== DEO 4 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_DEO)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK4
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_DEO & "Deo 4_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "DEO 4: fallo la exportacion a " & FILE_SERVER_DEO & "Deo 4_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "DEO 4: no se pudo crear el reporte " & REPORTE_DEO
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== CONEXION 5 (trae ayer, antier y trasantier: -1/-2/-3 dias) ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_CONEXION)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_CONEXION & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 3855
+            Rep.Window.Width = 20655
+            Rep.Window.Height = 11700
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Skill",SK5
+
+            Rep.SetProperty "Fechas",FecD1
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D1 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 5 dia -1: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_5_" & Fec2D1 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD2
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 5 dia -2: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_5_" & Fec2D2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            Rep.SetProperty "Fechas",FecD3
+            b = Rep.ExportData(FILE_SERVER_LOG & "LOGIN_5_" & Fec2D3 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "CONEXION 5 dia -3: fallo la exportacion a " & FILE_SERVER_LOG & "LOGIN_5_" & Fec2D3 & ".txt"
+                Set Log = Nothing
+            End If
+
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "CONEXION 5: no se pudo crear el reporte " & REPORTE_CONEXION
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== INTERVALOS 5 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_INTERVALOS)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_INTERVALOS & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK5
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_INTERVALOS & "inervalo5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "INTERVALOS 5: fallo la exportacion a " & FILE_SERVER_INTERVALOS & "inervalo5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "INTERVALOS 5: no se pudo crear el reporte " & REPORTE_INTERVALOS
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+
+'=== DEO 5 ===
+
+    cvsSrv.Reports.ACD = 1
+    Set Info = cvsSrv.Reports.Reports(REPORTE_DEO)
+
+    If Info Is Nothing Then
+        If cvsSrv.Interactive Then
+            MsgBox "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1.", vbCritical Or vbOKOnly, "Avaya CMS Supervisor"
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "El reporte " & REPORTE_DEO & " no fue encontrado en la ACD 1."
+            Set Log = Nothing
+        End If
+    Else
+
+        b = cvsSrv.Reports.CreateReport(Info,Rep)
+
+        If b Then
+
+            Rep.Window.Top = 0
+            Rep.Window.Left = 0
+            Rep.Window.Width = 0
+            Rep.Window.Height = 0
+
+            Rep.TimeZone = "default"
+
+            Rep.SetProperty "Splits/skills",SK5
+
+            Rep.SetProperty "Fechas",fec
+
+            Rep.SetProperty "Intervalo","00:00-23:45"
+
+                        b = Rep.ExportData(FILE_SERVER_DEO & "Deo 5_" & Fec2 & ".txt", 9, 0, True, True, True)
+
+            If Not b Then
+                Set Log = CreateObject("ACSERR.cvsLog")
+                Log.AutoLogWrite "DEO 5: fallo la exportacion a " & FILE_SERVER_DEO & "Deo 5_" & Fec2 & ".txt"
+                Set Log = Nothing
+            End If
+
+            rep.quit
+
+            If Not cvsSrv.Interactive Then cvsSrv.ActiveTasks.Remove Rep.TaskID
+            Set Rep = Nothing
+
+        Else
+            Set Log = CreateObject("ACSERR.cvsLog")
+            Log.AutoLogWrite "DEO 5: no se pudo crear el reporte " & REPORTE_DEO
+            Set Log = Nothing
+        End If
+
+    End If
+    Set Info = Nothing
+
+'FIN (sin MsgBox para que no bloquee la ejecucion desatendida)
+Set Log = CreateObject("ACSERR.cvsLog")
+Log.AutoLogWrite "SCRIPT INTERVALOS (1-5) FINALIZADO - fecha " & Fec
+Set Log = Nothing
+
+End Sub
